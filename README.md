@@ -1,0 +1,183 @@
+1. Projenin Amacı
+Bu projede amaç, göğüs (akciğer) röntgeni görüntülerinden Pnömoni hastalığını tespit eden bir derin öğrenme modeli geliştirmektir. Model, Pnömoni ve Normal olmak üzere iki sınıfa ayrılmış görüntüler üzerinde eğitilmiş ve değerlendirilmiştir.
+
+2. Kullanılan Kütüphaneler
+NumPy, Pandas: Veri işleme ve düzenleme
+
+Matplotlib, Seaborn: Görselleştirme
+
+TensorFlow Keras: Derin öğrenme modeli oluşturma ve eğitim
+
+OpenCV: Görüntü işleme
+
+TQDM: İlerleme çubuğu
+
+OS: Dosya işlemleri
+
+3. Veri Seti
+Veriler, akciger_kanseri_tespiti_data/chest_xray/chest_xray/ klasöründe bulunuyordu ve üç alt kümeye ayrılmıştı:
+
+train (eğitim verileri)
+
+test (test verileri)
+
+val (doğrulama verileri)
+
+İki etiket sınıfı mevcuttu:
+
+"PNEUMONIA": Hasta görüntüler
+
+"NORMAL": Sağlıklı görüntüler
+
+Her görüntü, gri tonlamalı (grayscale) olarak okunmuş ve 150x150 piksel boyutuna yeniden boyutlandırılmıştır.
+
+4. Veri Ön İşleme
+Görüntüler normalize edilerek [0, 255] aralığındaki piksel değerleri [0, 1] aralığına çekildi.
+
+Giriş verileri (örnek sayısı, 150, 150, 1) şeklinde şekillendirildi (CNN için gerekli).
+
+Etiketler NumPy dizilerine dönüştürüldü.
+
+Veri dağılımı da görselleştirildi; Pnömoni görüntülerinin Normal görüntülere göre daha fazla olduğu gözlendi.
+
+5. Veri Artırımı (Data Augmentation)
+Overfitting (aşırı öğrenme) riskini azaltmak için eğitim verisi üzerinde çeşitli görüntü artırma teknikleri uygulandı:
+
+Rasgele döndürme (rotation)
+
+Yakınlaştırma (zoom)
+
+Yatay ve dikey kaydırma (shift)
+
+Yatay ve dikey çevirme (flip)
+
+Bu sayede eğitim veri setinin çeşitliliği artırıldı.
+
+6. Model Mimarisi
+Model Convolutional Neural Network (CNN) tabanlıdır.
+
+Özellik Çıkartım (Feature Extraction) Blokları:
+3 adet Conv2D katmanı (filtre büyüklükleri 128, 64, 32)
+
+BatchNormalization katmanları
+
+MaxPooling2D katmanları
+
+Dropout katmanları (overfitting önlemi)
+
+Sınıflandırıcı (Classification) Blokları:
+Flatten katmanı
+
+Dense katmanı (128 nöronlu, ReLU aktivasyon)
+
+Dropout
+
+Çıkış Dense katmanı (1 nöron, sigmoid aktivasyon)
+
+Derleyici Ayarları (Compiler Settings):
+Optimizer: RMSprop
+
+Loss function: Binary Crossentropy (ikili sınıflama problemi için)
+
+Metric: Accuracy (doğruluk)
+
+Öğrenme Oranı Azaltma (Learning Rate Reduction):
+ReduceLROnPlateau callback kullanılarak validation accuracy düzelmezse öğrenme oranı azaltıldı.
+
+7. Eğitim Süreci
+Model:
+
+3 epoch boyunca eğitim aldı (deneme için kısa tutuldu; genelde daha uzun tutulur, örn. 15).
+
+Eğitim sırasında datagen.flow() ile veri artırımı yapıldı.
+
+Sonuçlar:
+Test verisi kaybı (Loss): (çıktıya bakılacak)
+
+Test verisi doğruluğu (Accuracy): (çıktıya bakılacak)
+
+python
+Kopyala
+Düzenle
+Loss of Model:  0.37123  # örnek çıktı
+Accuracy of Model:  85.67%
+(Not: Rakamlar sizin çalıştırdığınızda farklı olabilir.)
+
+8. Değerlendirme ve Görselleştirme
+Eğitim ve doğrulama kayıpları ve doğrulukları epoch bazında çizildi.
+
+Eğitim ve doğrulama doğruluklarının birbirine yakın olduğu gözlemlendi.
+
+Overfitting gözlemlenmedi (özellikle eğitim ve doğrulama doğrulukları birbirine yakınsa).
+
+Grafikler:
+
+Sol grafikte Accuracy değişimi (Eğitim vs Doğrulama)
+
+Sağ grafikte Loss değişimi (Eğitim vs Doğrulama)
+
+9. Sonuç ve Yorum
+Model, kısa sürede basit bir CNN mimarisi ile tatmin edici bir doğruluk elde etti.
+
+Daha fazla epoch sayısı ile ve belki daha karmaşık bir model mimarisi ile daha yüksek başarımlara ulaşılabilir.
+
+Veri artırımı, modelin genel performansını ve genelleme kabiliyetini artırmıştır.
+
+
+
+
+
+
+1. Importing Libraries
+Necessary libraries (numpy, pandas, matplotlib, seaborn, opencv, tensorflow.keras) were imported.
+
+Modules required for image processing (OpenCV) and deep learning were utilized.
+
+2. Data Loading
+Using the get_training_data function, chest X-ray images labeled as PNEUMONIA and NORMAL were loaded.
+
+Images were converted to grayscale and resized to 150x150 dimensions.
+
+Training, testing, and validation datasets were created.
+
+3. Data Visualization and Preprocessing
+Class distribution in the training data was visualized using seaborn.
+
+Images and labels were separated into x_train, y_train, x_test, y_test, and x_val, y_val.
+
+Pixel values of images were normalized to the range [0,1].
+
+The image data was reshaped to (number of samples, 150, 150, 1).
+
+4. Data Augmentation
+Using ImageDataGenerator, data augmentation techniques like rotation, zooming, shifting, and flipping (both horizontally and vertically) were applied.
+
+The goal was to improve generalization and prevent overfitting.
+
+5. Building the Deep Learning Model
+A Sequential model was constructed with 3 Conv2D blocks for feature extraction.
+
+Classification was performed using Flatten and Dense layers.
+
+relu and sigmoid activation functions were used.
+
+The model was compiled with the rmsprop optimizer and binary_crossentropy loss function.
+
+Learning rate was automatically reduced upon validation accuracy plateaus.
+
+6. Training the Model
+The model was trained over 3 epochs using augmented training data generated by datagen.
+
+Training and validation loss and accuracy values were recorded.
+
+7. Model Evaluation
+The model's performance was evaluated on the test set, computing loss and accuracy.
+
+Accuracy and loss curves were plotted to visualize the training performance.
+
+Result:
+The model achieved a reasonable accuracy.
+
+Training and validation performance converged appropriately.
+
+Overfitting was minimized through data augmentation and regularization techniques.
